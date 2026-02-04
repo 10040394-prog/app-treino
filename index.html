@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>App de Treino PRO+</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#ff3b3b">
+<style>
+:root{--bg:#0f0f10;--card:#1c1c20;--accent:#ff3b3b}
+body{margin:0;background:var(--bg);color:#fff;font-family:Arial}
+header{background:#151518;padding:14px;text-align:center}
+.container{padding:16px;padding-bottom:110px}
+.card{background:var(--card);border-radius:12px;padding:12px;margin-bottom:12px}
+button{width:100%;padding:10px;border:none;border-radius:10px;background:var(--accent);color:#fff;margin-top:6px}
+input,select,textarea{width:100%;padding:8px;border-radius:8px;border:none;margin-top:6px}
+.footer{position:fixed;bottom:0;left:0;right:0;background:#151518;padding:8px;text-align:center;font-size:12px}
+.hidden{display:none}
+</style>
+</head>
+<body>
+
+<header>Treino PRO+</header>
+
+<div class="container">
+
+<div id="login">
+  <div class="card">
+    <h3>🔒 Criar / Entrar com PIN</h3>
+    <input id="pin" type="password" placeholder="PIN numérico">
+    <button onclick="login()">Entrar</button>
+  </div>
+</div>
+
+<div id="app" class="hidden">
+
+<div class="card">
+<h3>🎨 Tema</h3>
+<select onchange="setTheme(this.value)">
+<option value="dark">Dark</option>
+<option value="red">Red</option>
+<option value="neon">Neon</option>
+<option value="gym">Gym</option>
+</select>
+</div>
+
+<div class="card">
+<h3>🧠 Planejamento Semanal</h3>
+<select id="plan">
+<option>A</option><option>B</option><option>C</option><option>D</option><option>E</option>
+</select>
+<button onclick="savePlan()">Salvar Planejamento</button>
+</div>
+
+<div class="card">
+<h3>🏋️ Treino do Dia</h3>
+<textarea id="treino" placeholder="Ex: Supino 4x10 40kg" style="height:80px"></textarea>
+<button onclick="saveTreino()">Salvar Treino</button>
+<button onclick="exportPDF()">Exportar PDF</button>
+</div>
+
+<div class="card">
+<h3>📊 Histórico</h3>
+<div id="history"></div>
+</div>
+
+</div>
+</div>
+
+<div class="footer">Offline • PIN • PDF • Temas</div>
+
+<script>
+function login(){
+let p=document.getElementById("pin").value
+if(!localStorage.pin)localStorage.pin=p
+if(localStorage.pin===p){
+document.getElementById("login").classList.add("hidden")
+document.getElementById("app").classList.remove("hidden")
+loadHistory()
+}else alert("PIN incorreto")
+}
+
+function saveTreino(){
+let h=JSON.parse(localStorage.history||"[]")
+h.push({date:new Date().toLocaleString(),treino:treino.value})
+localStorage.history=JSON.stringify(h)
+loadHistory()
+}
+
+function loadHistory(){
+let h=JSON.parse(localStorage.history||"[]")
+history.innerHTML=h.map(x=>`<p>${x.date}<br>${x.treino}</p>`).join("")
+}
+
+function exportPDF(){window.print()}
+
+function setTheme(t){
+if(t==="dark"){document.documentElement.style.cssText="--bg:#0f0f10;--card:#1c1c20;--accent:#ff3b3b"}
+if(t==="red"){document.documentElement.style.cssText="--bg:#120000;--card:#1f0000;--accent:#ff3b3b"}
+if(t==="neon"){document.documentElement.style.cssText="--bg:#000;--card:#001f1f;--accent:#00ffd5"}
+if(t==="gym"){document.documentElement.style.cssText="--bg:#0b0b0b;--card:#1a1a1a;--accent:#f5c400"}
+}
+
+function savePlan(){localStorage.plan=document.getElementById("plan").value}
+
+if("serviceWorker"in navigator){navigator.serviceWorker.register("sw.js")}
+</script>
+
+</body>
+</html>
